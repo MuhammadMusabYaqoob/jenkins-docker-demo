@@ -2,16 +2,23 @@ pipeline {
     agent any
 
     stages {
-        stage('Checkout') {
+
+        stage('Build Docker Image') {
             steps {
-                echo 'Code fetched from GitHub successfully!'
+                sh 'docker build -t jenkins-demo:latest .'
             }
         }
 
-        stage('Docker Check') {
+        stage('Stop Old Container') {
             steps {
-                sh 'docker --version'
-                sh 'docker ps'
+                sh 'docker stop jenkins-demo-container || true'
+                sh 'docker rm jenkins-demo-container || true'
+            }
+        }
+
+        stage('Run New Container') {
+            steps {
+                sh 'docker run -d -p 8080:80 --name jenkins-demo-container jenkins-demo:latest'
             }
         }
     }
